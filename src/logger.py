@@ -12,6 +12,7 @@ except ImportError:
 from bme280 import BME280
 from pms5003 import PMS5003
 from enviroplus import gas
+import ha_discovery
 
 
 class EnvLogger:
@@ -34,6 +35,9 @@ class EnvLogger:
             self.pm_thread = threading.Thread(target=self.__read_pms_continuously)
             self.pm_thread.daemon = True
             self.pm_thread.start()
+
+        ha_discovery.publish_discovery_topics(self.client, self.prefix)
+
     
 
     def __on_connect(self, client, userdata, flags, rc):
@@ -62,9 +66,9 @@ class EnvLogger:
             try:
                 pm_data = pms.read()
                 self.latest_pms_readings = {
-                    "particulate/1.0": pm_data.pm_ug_per_m3(1.0, atmospheric_environment=True),
-                    "particulate/2.5": pm_data.pm_ug_per_m3(2.5, atmospheric_environment=True),
-                    "particulate/10.0": pm_data.pm_ug_per_m3(None, atmospheric_environment=True),
+                    "particulate/1_0": pm_data.pm_ug_per_m3(1.0, atmospheric_environment=True),
+                    "particulate/2_5": pm_data.pm_ug_per_m3(2.5, atmospheric_environment=True),
+                    "particulate/10_0": pm_data.pm_ug_per_m3(None, atmospheric_environment=True),
                 }
             except:
                 print("Failed to read from PMS5003. Resetting sensor.")
